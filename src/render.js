@@ -10,6 +10,7 @@ import { notes, shows, watchlist } from './state.js';
 export function renderShows(list) {
   const results = document.querySelector('#results');
   const status = document.querySelector('#status');
+  const count = document.querySelector('#watchlist-count');
   const template = document.querySelector('#show-card');
   if (!(results instanceof HTMLUListElement)) throw new Error('Не знайдено список #results');
   if (!status) throw new Error('Не знайдено рядок статусу #status');
@@ -50,6 +51,7 @@ export function renderShows(list) {
   }
 
   results.replaceChildren(cards);
+  if (count) count.textContent = String(watchlist.size);
   status.textContent = list.length
     ? `Знайдено: ${list.length} з ${shows.length}`
     : 'Нічого не знайдено';
