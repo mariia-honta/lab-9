@@ -34,7 +34,11 @@ export function openDetails(id) {
 
   currentId = id;
   title.textContent = show.name;
-  summary.innerHTML = show.summary;
+  const parsedSummary = new DOMParser().parseFromString(
+    show.summary ?? "",
+    "text/html",
+  );
+  summary.textContent = parsedSummary.body.textContent ?? "";
   link.href = show.url;
 
   const note = notes.get(id);
@@ -81,19 +85,20 @@ export function initDetails(refresh) {
       Number.isInteger(value) &&
       value >= 1 &&
       value <= 10;
-    rating.setAttribute("aria-invalid", String(!isValid));
+    if (isValid) {
+      rating.removeAttribute("aria-invalid");
+    } else {
+      rating.setAttribute("aria-invalid", "true");
+    }
     error.textContent = isValid ? "" : "Введіть ціле число від 1 до 10.";
     return isValid;
   };
 
   cancel.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
-  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const value = Number(rating.value);
+
     if (!validateRating()) {
       rating.focus();
       return;
@@ -101,9 +106,23 @@ export function initDetails(refresh) {
 
     if (currentId === undefined)
       throw new Error("Не вибрано серіал для нотатки");
-    saveNote(currentId, { rating: value, text: text.value });
-    refresh();
+
+    const id = currentId;
+    const showName = getShow(id).name;
+
+    saveNote(id, { rating: Number(rating.value), text: text.value });
+
     dialog.close();
+    refresh();
+    const status = document.querySelector("#status");
+    if (status instanceof HTMLElement) {
+      status.textContent = `Нотатку до ${showName} збережено`;
+    }
+
+    const detailsButton = document.querySelector(
+      `#results [data-id="${id}"] button[data-action="details"]`,
+    );
+    if (detailsButton instanceof HTMLButtonElement) detailsButton.focus();
   });
 
   rating.addEventListener("input", () => {
