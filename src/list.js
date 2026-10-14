@@ -21,14 +21,32 @@ export function initList(refresh) {
 
     const id = Number(card.dataset.id);
     if (button.dataset.action === "toggle") {
+      const cards = Array.from(results.children);
+      const index = cards.indexOf(card);
+
       toggle(id);
       refresh();
-      const newCard = results.querySelector(`[data-id="${id}"]`);
 
-      const newButton = newCard?.querySelector('button[data-action="toggle"]');
+      const sameCard = results.querySelector(`[data-id="${id}"]`);
+      let targetCard = sameCard;
 
-      if (newButton instanceof HTMLButtonElement) {
-        newButton.focus();
+      if (!targetCard) {
+        const newCards = Array.from(results.children);
+        targetCard = newCards[index] ?? newCards[index - 1];
+      }
+
+      const targetButton = targetCard?.querySelector(
+        'button[data-action="toggle"]',
+      );
+
+      if (targetButton instanceof HTMLButtonElement) {
+        targetButton.focus();
+      } else {
+        const heading = document.querySelector("#results-heading");
+        if (heading instanceof HTMLElement) {
+          heading.setAttribute("tabindex", "-1");
+          heading.focus();
+        }
       }
     } else if (button.dataset.action === "details") {
       openDetails(id);

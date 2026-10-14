@@ -59,7 +59,11 @@ export function initFilters(refresh) {
     event.preventDefault();
   });
 
-  form.addEventListener("reset", () => {
-    requestAnimationFrame(refresh);
+  form.addEventListener("reset", (event) => {
+    event.preventDefault();
+    query.value = query.defaultValue;
+    genre.selectedIndex = 0;
+    mine.checked = mine.defaultChecked;
+    refresh();
   });
 }
